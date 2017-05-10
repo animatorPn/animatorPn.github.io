@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="quiz.css">
+    <script src="https://code.jquery.com/jquery-3.2.0.min.js"></script>
+    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.5.0.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="animator.js"></script>
+</head>
+<body>
+
+
+
+
+<div class="col-md-12">
+
+
+    <div class="row">
+
+
+
+        <div class="row col-sm-12 text-center">
+            <div id="dv-form" class="forms">
+                <form id="frm_joint_animator" class="form-horizontal">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control username" id="game-pin" placeholder="Game pin" required="required">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class=" col-sm-12">
+                            <button id="btn_joint_animator" type="submit" class="btn btn-primary username col-xs-12"
+                                    data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Verify session..">Enter</button>
+                        </div>
+                    </div>
+                </form>
+
+
+                <form id="frm_submit_color_name_team" class="form-horizontal dv_hidden">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" id="team-name" name="team_name" placeholder="Team name" required/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class=" col-sm-12">
+                            <select id="team-color" name="team_color" class="form-control">
+                                <!-- <option id="color-f35" class="color-red" value="f35">Red</option>-->
+                                <option id="color-45a3e5" class="color-blue" value="45a3e5">Blue</option>
+                                <option id="color-66bf39" class="color-green" value="66bf39">Green</option>
+                                <option id="color-eb670f" class="color-orange" value="eb670f">Orange</option>
+
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class=" col-sm-12">
+                            <button id="btn_submit_color_name_team" type="submit" class="btn btn-primary btn-lg"
+                                    data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Submit..">Submit
+                            </button>
+                         </div>
+                    </div>
+
+
+                </form>
+
+            </div>
+        </div>
+
+        <div id="dv_quiz_players_team" class="dv_hidden">
+
+            <div id="headerGame" class="row header-game text-center">
+
+                <div id="header_1">
+                    <h2>Joined with Game PIN:  <span id="gamePin"></span></h2>
+                    <!--<h2>and color <span id="teamColor">Orange</span> </h2>-->
+                </div>
+
+
+                <div id="header_2" class="row dv_hidden">
+                    <div class="header-quiz text-left col-sm-8">
+                        <h1 class="pull-left">
+                                <span style="font-size: 110%;" class="label label-info">
+                                    <span id="counter-slide"></span> /<span id="total-slides"></span>
+                                </span>
+                        </h1>
+
+                        <h3 id="title-slide" class="pull-left" style="margin-left: 20px"></h3>
+
+                    </div>
+                    <div class="header-quiz text-left col-sm-4">
+                        <div id="showPinGame"><h3>PIN : <span></span></h3></div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="content-quiz" class="col-xs-12">
+
+                <div id="waiting_players">
+
+
+                    <div class="row">
+                        <div class="col-xs-6 text-left">
+                            <h1>
+                                    <span style=" padding: 11px;" class="label label-success">Players
+                                        <span id="nbr-players" data-id="0" class="badge">0</span>
+                                    </span>
+                            </h1>
+                        </div>
+
+
+                    </div>
+
+                    <div id="list_players_teams" class="row text-center writing-players"></div>
+                </div>
+
+
+                <div id="numberCircle" class="numberCircle dv_hidden">5</div>
+
+
+                <div id="section-quiz">
+
+                    <!-- ----------------------------------quiz content---------------------------------------- -->
+                    <div id="quiz-question-image" class="row text-right dv_hidden">
+
+                       <!-- <div class="col-sm-12" style="padding: 0 30px 10px 0;">
+                            <button class="show-statistics btn btn-primary btn-lg dv_hidden">Show statistics</button><br/>
+                        </div> -->
+
+
+                        <div class="row">
+                            <div class="col-xs-6 text-left">
+                                <h1>
+                                    <span style=" padding: 11px;margin-left: 15px;" class="label label-default">Answers
+                                        <span id="nbr-answers-players" data-id="0" class="badge">0</span>
+                                    </span>
+                                </h1>
+                            </div>
+                        </div><br/>
+
+
+
+                        <div id="quiz-question" class="quiz col-sm-6" data-toggle="buttons">
+                        </div>
+
+                        <div id="quiz-img" class="quiz col-sm-6 row">
+                        </div>
+                    </div>
+
+                    <div id="payload-attachment" class="col-xs-12 dv_hidden">
+
+                    </div>
+
+                </div>
+
+
+
+                <div id="show-feedback" class="col-xs-12 text-center dv_hidden">
+
+
+                    <div class="col-sm-12" style="margin: 25px 0 30px">
+                        <div class="col-sm-4"><h2>Correct:<span id="totalCorrect" class="label label-success">0</span></h2></div>
+                        <div class="col-sm-4"><h2>Incorrect:<span  id="totalIncorrect" class="label label-danger">0</span></h2></div>
+                        <div class="col-sm-4"><h2>NotAnswered:<span id="totalNotAnswered" class="label label-default">0</span></h2></div>
+                    </div>
+
+
+                    <p class="feedback-question">
+                    <div class="quick-btn" href="#">
+                        <i class="fa fa-star fa-5x"></i><br/>
+                        <span> &nbsp;</span>
+                        <span id="totalStars" class="label label-info">0</span>
+                    </div>
+
+                    </p>
+
+                    <p class="feedback-question">
+                    <div class="quick-btn" href="#">
+                        <i class="fa fa-thumbs-up fa-5x"></i><br/>
+                        <span> &nbsp;</span>
+                        <span id="totalLikes" class="label label-info">0</span>
+                    </div>
+
+                    <div class="quick-btn" href="#">
+                        <i class="fa fa-thumbs-down fa-5x"></i><br/>
+                        <span> &nbsp;</span>
+                        <span id="totalDislikes" class="label label-default">0</span>
+                    </div>
+                    </p>
+                    <p class="feedback-question">
+                    <div class="quick-btn" href="#">
+                        <i class="fa fa-smile-o fa-2x"></i><br/>
+                        <span> &nbsp;</span>
+                        <span id="totalSmiles" class="label label-info">0</span>
+                    </div>
+                    <div class="quick-btn" href="#">
+                        <i class="fa fa-meh-o fa-2x"></i><br/>
+                        <span> &nbsp;</span>
+                        <span id="totalMehs" class="label label-info">0</span>
+                    </div>
+                    <div class="quick-btn" href="#">
+                        <i class="fa fa-frown-o fa-2x"></i><br/>
+                        <span> &nbsp;</span>
+                        <span id="totalFrowns" class="label label-default">0</span>
+                    </div>
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+
+            <div id="myProgress">
+                <div id="myBar"></div>
+            </div>
+
+            <div id="footer-game" class="footer-game col-xs-12">
+
+
+
+                <div>
+                    <span class='fa fa-exclamation-circle footer-icon'></span>
+                    <span class="footer-text">Waiting for players...</span>
+                </div>
+
+                <!--<div class="dv_hidden">
+                    <button class="next-continue btn btn-primary" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Processing..">Continue</button>
+                </div>-->
+            </div>
+        </div>
+
+
+        <!--<input id="countPlayersNotAnswered" type="text" value="0">-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <!-----------------------------------------------------Quiz---------------------------------------------->
+        <div class="container-fluid dv_hidden">
+            <div class="modal-header">
+                <div id="qui-content" class="modal-content">
+                    <div class="modal-header">
+                        <h3><span class="label label-warning" id="qid">2</span> THREE is CORRECT</h3>
+                    </div>
+                    <div class="modal-body row">
+
+
+
+
+
+                    </div>
+                    <div class="modal-footer text-muted">
+                        <span id="answer"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+    </div><!-- END MAIN-TAGS-LIST -->
+</div>
+
+
+<!-- MODAL SUBMIT COLOR TEAM -->
+<div class="modal fade modal-submit-questions" id="modal_submit_color_name_team" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="">Name and Color of your team</h4>
+            </div>
+            <div class="modal-body">
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL SUBMIT COLOR TEAM -->
+
+<div id="statistics-students" class=" modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content text-center">
+            <div class="modal-header">
+                <h4 class="modal-title">&nbsp;</h4>
+            </div>
+
+            <div id="content-statistics-players" class="modal-body">
+
+            </div>
+
+            <div id="statistics-footer" class="statistics-footer modal-footer">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+</body>
+</html>
