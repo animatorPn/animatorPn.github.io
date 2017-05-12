@@ -4,11 +4,11 @@ jQuery(document).ready(function($) {
     var channel,pubnub,mode,teamColor,nbrPlayers,allotedTime,totleAnswers,leaderboardPlayers, leaderboardTeams = [];
     var playersList = [];
     var addToplayerList = true;
-    var listTeamsColor = [];
+    //var listTeamsColor = [];
     var childrenEventID =[];
     var counter = 0 ;
     var headerGame = '#headerGame';
-    var startQuiz = '#start-quiz';
+    //var startQuiz = '#start-quiz';
     var footerGame = '#footer-game';
     var quizQuestionImage = '#quiz-question-image';
     var payloadAttachment = '#payload-attachment';
@@ -18,7 +18,7 @@ jQuery(document).ready(function($) {
     var correctAnswer;
     var totalCorrect = 0,totalIncorrect = 0 ,totalNotAnswered = 0, notAnswered;
     var totalStars = 0,totalLikes = 0,totalDislikes = 0,totalSmiles = 0,totalMehs = 0,totalFrowns = 0,nbrAnswersPlayers = 0;
-    //console.log('bvvvvv');
+
 
     $('#frm_joint_animator').submit(function(){
         $('#btn_joint_animator').button('loading');
@@ -80,27 +80,6 @@ jQuery(document).ready(function($) {
 
 
 
-
-
-    function isOnline(number,cb){
-        pubnub.hereNow(
-            {
-                channels: [number],
-                includeUUIDs: true,
-                includeState: true
-            },
-            function (status, response) {
-                // handle status, response
-                //console.log(status);
-                //console.log(response);
-                //cb(response.channels[channel].occupants);
-                //cb(response.totalOccupancy != 0);
-                cb(response.channels[channel].occupants);
-            }
-        );
-    }
-
-
     $('#frm_submit_color_name_team').submit(function(){
 
         $('#btn_submit_color_name_team').button('loading');
@@ -157,36 +136,12 @@ jQuery(document).ready(function($) {
                                 $('#dv_quiz_players_team').show();
                                 leaderboardTeams = classmentTeam(leaderboardTeams,teamColor,nameColor,teamName,0);
 
-                                console.log(leaderboardTeams);
+                                //console.log(leaderboardTeams);
                             }
                         }
                     );
 
 
-
-                    /*pubnub.setState(
-                        {
-                            state: newState,
-                            channels: [channel]
-                        },
-                        function (status, response) {
-                            console.log(response);
-                            if(!status.error){
-
-                                $('#frm_submit_color_name_team').hide();
-                                $(headerGame).removeClass('header-game').addClass('header-game-team');
-                                $(headerGame).css('background-color', '#'+teamColor);
-                                $('#header_1').append('<h2>and color <span id="teamColor">'+nameColor+'</span></h2>');
-                                var template = addTeamClassrom(teamColor,teamName);
-                                $('#list_players_teams').append(template);
-
-
-                                leaderboardTeams = classmentTeam(leaderboardTeams,teamColor,nameColor,teamName,0);
-
-                                //console.log(leaderboardTeams);
-                            }
-                        }
-                    );*/
 
 
                 }
@@ -207,7 +162,6 @@ jQuery(document).ready(function($) {
                         $('#myBar').css('width',0);
                         countdown(5);
 
-                        $('.next-continue').text('Continue');
                         $(payloadAttachment).html('<img id="img-payload-attachment" src="'+message.slide_url+'"/>');
                         $('#title-slide').text(message.slide_title);
                         $(footerGame).addClass('text-center');
@@ -225,27 +179,20 @@ jQuery(document).ready(function($) {
                             playersList = [];
                         }
 
-                        console.log(playersList);
-
                         $('#counter-slide').text(''+pad(message.slideCounter));
                         $('#total-slides').text(''+pad(message.childrenLength));
                         nbrAnswersPlayers = 0;
                         $('#nbr-answers-players').text(''+nbrAnswersPlayers);
                         payload = 'quiz';
                         $('#myBar').css('width',0);
-                        notAnswered = nbrPlayers;
+                        notAnswered = nbrPlayers || 0;
                         totalNotAnswered += notAnswered;
-                        //console.log('ttttttttttttttttt '+totalNotAnswered);
-
                         countdown(5);
 
-                        $('.next-continue').text('Next');
                         $('#quiz-img').html('');
                         $('#quiz-question').html('');
                         $('#title-slide').text(message.slide_title);
                         $(footerGame).html('');
-                        /*$('#statistics-footer').html('<button type="button" class="next-statistics btn btn-primary" ' +
-                            'data-loading-text="<i class=\'fa fa-circle-o-notch fa-spin\'></i> Processing...">Next</button>');*/
                         totleAnswers = message.totalAnswers;
                         render_content_quiz(totleAnswers, message.slide_url);
                         $(payloadAttachment).hide();
@@ -254,7 +201,6 @@ jQuery(document).ready(function($) {
                         correctAnswer = message.correct_answer;
 
                         allotedTime = parseInt(message.time);
-
 
                         var contentMOdal = renderColumnChart();
 
@@ -393,6 +339,17 @@ jQuery(document).ready(function($) {
             },
             presence: function (presenceEvent) {
                 //console.log(presenceEvent);
+
+                if(presenceEvent.uuid === 'moderator'){
+                    if(presenceEvent.action === 'leave'){
+                        location.reload();
+                    }
+                    if(presenceEvent.action === 'timeout'){
+                        location.reload();
+                    }
+                }
+
+
                 if(presenceEvent.uuid !== 'animator' && presenceEvent.uuid !== 'moderator' && addToplayerList){
                     var nbrPlayersTag = '#nbr-players';
                     nbrPlayers = parseInt($(nbrPlayersTag).attr('data-id'));
@@ -426,10 +383,10 @@ jQuery(document).ready(function($) {
 
                     }
 
+
                     if(presenceEvent.action === 'timeout'){
                         nbrPlayers--;
                         updateNbrPlayers(nbrPlayersTag, nbrPlayers);
-
                         if(mode == 'A') {
                             playersList.splice($.inArray(presenceEvent.uuid, playersList), 1);
                             updateListPlayerModeA(playersList);
@@ -458,12 +415,12 @@ jQuery(document).ready(function($) {
                             });
                             $('#content-'+colorPlayer).show();
                             updateListPlayerModeB(playersList);
-                            $(startQuiz).removeAttr('disabled');
+                            //$(startQuiz).removeAttr('disabled');
                             //$(footerGame).hide();
                         }
                     }
 
-                    console.log(playersList);
+                    //console.log(playersList);
 
                 }
             }
@@ -473,149 +430,29 @@ jQuery(document).ready(function($) {
             channels: [channel],
             withPresence: true // also subscribe to presence instances.
         });
-
-
-
         return false;
-    });
-
-
-    /*$(startQuiz).click(function () {
-        $(this).button('loading');
-        //console.log(playersList);
-        sendEndpointToEV();
-    });*/
-
-    /*$('body').on('click','.next-continue',function () {
-
-        $(this).button('loading');
-        $('.show-statistics').hide();
-
-        $('#myBar').css('width',0);
-        //console.log(playersList);
-        counter++;
-        //countdown(5);
-        sendEndpointToEV();
-
-    });*/
-
-    $('body').on('click','.next-statistics',function () {
-
-
-
-        var data = {response : 'nextStatistics'};
-        pubnub.publish(
-            {
-                message: data,
-                channel: channel,
-                sendByPost: false // true to send via post
-            },
-            function (status, response) {
-                if (status.error) {
-                    // handle error
-                    console.log(status);
-                    alert('error verify connection..!');
-                }else{
-                    if(counter >= childrenEventID.length-1){
-                        if(mode == "A") {
-                            //$(this).attr('disabled', 'disabled');
-                            $(this).removeClass('next-statistics btn-primary').addClass('getResults btn-danger');
-                            $(this).text('Get Results');
-                        }else{
-                            $(this).removeClass('next-statistics').addClass('renderStatisticsTeams');
-                        }
-                    }else{
-                        $(this).removeClass('next-statistics').addClass('next-continue');
-                    }
-
-                    var contentMOdal = renderStatisticsList(leaderboardPlayers);
-                    $('#content-statistics-players').html(contentMOdal);
-                }
-            }
-        );
-
-
-
-
-
-
-    });
-
-
-    $('body').on('click','.renderStatisticsTeams',function () {
-        //$(this).attr('disabled', 'disabled');
-        $(this).removeClass('renderStatisticsTeams btn-primary').addClass('getResults btn-danger');
-        $(this).text('Get Results');
-        var contentMOdalTeams = renderStatisticsListTeams(leaderboardTeams);
-        $('#content-statistics-players').html(contentMOdalTeams);
-    });
-
-    $('body').on('click','.getResults',function () {
-        $(this).button('loading');
-        var data = {response : 'getFeedback'};
-        pubnub.publish(
-            {
-                message: data,
-                channel: channel,
-                sendByPost: false // true to send via post
-            },
-            function (status, response) {
-                if (status.error) {
-                    // handle error
-                    console.log(status);
-                    alert('error verify connection..!');
-                }else{
-                    //console.log('ok'+status);
-                    //stopCount();
-                    $('.getResults').hide();
-                    $('#statistics-students').modal("hide");
-                    $('#section-quiz').hide(function(){
-                        $('#show-feedback').show();
-                        $('#header_2').html('<div class="statusbar text-center"><h2>Game Over</h2></div>');
-                        $('#myProgress').hide();
-                        $(footerGame).hide();
-
-                        var TotalQuestions = totalCorrect+totalIncorrect+totalNotAnswered;
-                        $('#totalCorrect').text(Math.round(percentResult(totalCorrect,TotalQuestions))+'%');
-                        $('#totalIncorrect').text(Math.round(percentResult(totalIncorrect,TotalQuestions))+'%');
-                        $('#totalNotAnswered').text(Math.round(percentResult(totalNotAnswered,TotalQuestions))+'%');
-                    });
-                }
-            }
-        );
-    });
-
-
-    $('.show-statistics-feedback').click(function(){
-
-        var contentMOdal = renderStatisticsList(leaderboardPlayers);
-        $('#content-statistics-players').html(contentMOdal);
-        $("#statistics-students").modal();
-        /*var dataID = $(this).attr('data-id');
-         if(dataID == 'showStatistics') {
-         $(this).attr('data-id','showFeedback');
-         $(this).text('how result');
-         var contentMOdal = renderStatisticsList(leaderboardPlayers);
-         $('#content-statistics-players').html(contentMOdal);
-         $("#statistics-students").modal();
-         }else{
-         $(this).attr('data-id','showStatistics');
-         $(this).text('Show statistics');
-         $("#statistics-students").modal('hide');
-         }*/
-    });
-
-    $('.show-statistics').click(function(){
-
-        $("#statistics-students").modal();
     });
 
 
 
     /*--------------------------------------------------Functions----------------------------------------------*/
 
+    function isOnline(number,cb){
+        pubnub.hereNow(
+            {
+                channels: [number],
+                includeUUIDs: true,
+                includeState: true
+            },
+            function (status, response) {
+
+                cb(response.channels[channel].occupants);
+            }
+        );
+    }
+
     function changeViewToQuiz(){
-        $(startQuiz).button('reset');
+        //$(startQuiz).button('reset');
         $('#waiting_players').hide();
         /*$("#footer-game div:first-child").hide();
          $("#footer-game div:last-child").show();*/
