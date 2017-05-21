@@ -1,7 +1,7 @@
 jQuery(document).ready(function($) {
 
     var modal_submit_color_name_team = '#modal_submit_color_name_team';
-    var channel,pubnub,mode,teamColor,nbrPlayers,allotedTime,totleAnswers,leaderboardPlayers, leaderboardTeams = [];
+    var channel,pubnub,mode,teamColor,nbrPlayers = 0,allotedTime,totleAnswers,leaderboardPlayers, leaderboardTeams = [];
     var playersList = [];
     var addToplayerList = true;
     //var listTeamsColor = [];
@@ -95,6 +95,8 @@ jQuery(document).ready(function($) {
             status: function (statusEvent) {
                 if (statusEvent.category === "PNConnectedCategory") {
 
+                    $('#chat_window_1').removeClass('hidden');
+                    errWrap(login);
                     $('#gamePin').text(channel);
                     $('#showPinGame').find('span').text(channel);
 
@@ -836,5 +838,130 @@ jQuery(document).ready(function($) {
 
         return leaderboard.slice(0, 10);
     }
+
+
+
+    /*-----------------------------------------videoChat------------------------------------------------------*/
+    var video_out = document.getElementById("vid-box");
+    var vid_thumb = document.getElementById("vid-thumb");
+    var vidCount = 0;
+
+
+
+
+
+    $(document).on('click', '.panel-heading span.icon_minim', function (e) {
+        var $this = $(this);
+
+        if (!$this.hasClass('panel-collapsed')) {
+            $this.parents('.panel').find('.panel-body').slideDown();
+            $this.addClass('panel-collapsed');
+            $this.removeClass('fa-plus').addClass('fa-minus');
+        } else {
+
+            $this.parents('.panel').find('.panel-body').slideUp();
+            $this.removeClass('panel-collapsed');
+            $this.removeClass('fa-minus').addClass('fa-plus');
+        }
+    });
+
+
+    $('#mute-video').click(function(){
+        mute();
+    });
+    $('#pause-video').click(function(){
+        pause();
+    });
+    $('#end-video').click(function(){
+        end();
+    });
+
+    $('#call-video').submit(function(){
+        return errWrap(makeCall,$(this));
+    });
+
+
+    function login(form) {
+        //var gamePin = Math.floor(Math.random() * 99 + 1);
+        var loginUser = "animator-" + channel;
+        var phone = window.phone = PHONE({
+            number: loginUser, //form.username.value || "moderator", // listen on username line else Anonymous
+            publish_key: 'pub-c-561a7378-fa06-4c50-a331-5c0056d0163c', // Your Pub Key
+            subscribe_key: 'sub-c-17b7db8a-3915-11e4-9868-02ee2ddab7fe', // Your Sub Key
+        });
+        var ctrl = window.ctrl = CONTROLLER(phone);
+        ctrl.ready(function () {
+            /*form.username.style.background="#55ff5b";
+             form.login_submit.hidden="true"; */
+            ctrl.addLocalStream(vid_thumb);
+            console.log("Logged in as " + loginUser);
+        });
+        ctrl.receive(function (session) {
+            session.connected(function (session) {
+                video_out.appendChild(session.video);
+                session.video.setAttribute("controls","controls");
+                console.log(session.number + " has joined.");
+                vidCount++;
+            });
+            session.ended(function (session) {
+                ctrl.getVideoElement(session.number).remove();
+                console.log(session.number + " has left.");
+                vidCount--;
+            });
+        });
+        ctrl.videoToggled(function (session, isEnabled) {
+            ctrl.getVideoElement(session.number).toggle(isEnabled);
+            console.log(session.number + ": video enabled - " + isEnabled);
+        });
+        ctrl.audioToggled(function (session, isEnabled) {
+            ctrl.getVideoElement(session.number).css("opacity", isEnabled ? 1 : 0.75);
+            console.log(session.number + ": audio enabled - " + isEnabled);
+        });
+        return false;
+    }
+
+    function makeCall() {
+        if (!window.phone) alert("Login First!");
+        var num = 'moderator-'+channel;
+        if (phone.number() == num) return false; // No calling yourself!
+        ctrl.isOnline(num, function (isOn) {
+            if (isOn) ctrl.dial(num);
+            else alert("User if Offline");
+        });
+        return false;
+    }
+
+    function mute() {
+        var audio = ctrl.toggleAudio();
+        if (!audio) $("#mute-video").html('<i class="fa fa-volume-up icon_video_action"></i>');
+        else $("#mute-video").html('<i class="fa fa-volume-off icon_video_action"></i>');
+    }
+
+    function end() {
+        ctrl.hangup();
+    }
+
+    function pause() {
+        var video = ctrl.toggleVideo();
+        if (!video) $('#pause-video').html('<i class="fa fa-play icon_video_action"></i>');
+        else $('#pause-video').html('<i class="fa fa-pause icon_video_action"></i>');
+    }
+
+    function getVideo(number) {
+        return $('*[data-number="' + number + '"]');
+    }
+
+
+    function errWrap(fxn, form) {
+        try {
+            return fxn(form);
+        } catch (err) {
+            alert("WebRTC is currently only supported by Chrome, Opera, and Firefox");
+            return false;
+        }
+    }
+
+
+
 
 });
