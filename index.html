@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="quiz.css">
     <script src="https://code.jquery.com/jquery-3.2.0.min.js"></script>
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.5.0.js"></script>
+    <script src="https://cdn.pubnub.com/pubnub.min.js"></script>
+    <script src="webrtc.js"></script>
+    <script src="rtc-controller.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="animator.js"></script>
 </head>
@@ -322,6 +325,57 @@
         </div>
     </div>
 </div>
+
+
+
+
+<!-- -------------------------------------------------chat video------------------------------------------------- -->
+<div class="row chat-window col-xs-6 col-md-6 hidden" id="chat_window_1">
+    <div class="col-xs-12 col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading top-bar">
+                <div class="col-md-3 col-xs-3">
+                    <h3 class="panel-title"><span class="fa fa-comment"></span> Chat</h3>
+                </div>
+                <div class="col-md-9 col-xs-9" style="text-align: right;">
+                    <a href="javascript:void(0)"><span id="minim_chat_window" class="fa fa-plus icon_minim icon_video_action"></span></a>
+
+                    <a id="mute-video" href="javascript:void(0)"><i class="fa fa-volume-off icon_video_action"></i></a>
+                    <a id="pause-video" href="javascript:void(0)"><i class="fa fa-pause icon_video_action"></i></a>
+                    <a id="end-video" href="javascript:void(0)" ><i class="fa fa-times icon_video_action"></i></a>
+                </div>
+            </div>
+            <div class="panel-body msg_container_base" style="display: none">
+                <div class="row msg_container base_sent">
+                    <div class="col-md-8 col-xs-8">
+                        <div class="messages msg_sent text-center">
+
+                            <!--<form name="callForm" id="call-video" action="#">
+                                &lt;!&ndash;<input type="text" name="number" id="call" placeholder="Enter User To Call!"/>&ndash;&gt;
+                                <br/>
+                                <button id="btn-call-video" class="btn btn-primary btn-lg disabled" type="submit" value="Call">Make call</button>
+                            </form>-->
+
+                            <div id="vid-box"></div>
+
+                        </div>
+
+
+
+                    </div>
+                    <div class="col-md-4 col-xs-4 avatar">
+
+                        <div id="vid-thumb" class="vidThumb"></div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
 
 
 
