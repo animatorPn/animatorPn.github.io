@@ -957,9 +957,14 @@ jQuery(document).ready(function($) {
                 alert("User if Offline!! Please wait for the Moderator connected");
             }
 
-            $('#chat_window_1').removeClass('hidden');
-            $('#loginChat').hide('200',function(){
+            $('#loginChat').hide('100',function(){
+
+                $('#chat_window_1').removeClass('hidden');
                 $('.loginChat').button('reset');
+                $('.panel-heading span.icon_minim').parents('.panel').find('.panel-body').slideDown();
+                $('.panel-heading span.icon_minim').addClass('panel-collapsed');
+                $('.panel-heading span.icon_minim').removeClass('fa-plus').addClass('fa-minus');
+
             });
 
         });
