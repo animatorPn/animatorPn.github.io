@@ -101,7 +101,7 @@ jQuery(document).ready(function($) {
                     $('#showPinGame').find('span').text(channel);
 
                     $(footerGame).append('<div class="col-xs-4 text-right">' +
-                        '<button id="loginChat" style="margin-top: 10px" class="btn btn-primary pull-right" ' +
+                        '<button id="loginChat" class=" loginChat btn btn-primary pull-right" ' +
                         'data-loading-text="<i class=\'fa fa-circle-o-notch fa-spin\'></i> Processing..">' +
                         '<i class="fa fa-video-camera"></i></button></div>');
 
@@ -171,10 +171,11 @@ jQuery(document).ready(function($) {
 
                         $(payloadAttachment).html('<img id="img-payload-attachment" src="'+message.slide_url+'"/>');
                         $('#title-slide').text(message.slide_title);
-                        $(footerGame).addClass('text-center');
+                        //$(footerGame).addClass('text-center');
                         render_content_quiz(message.totalAnswers, message.slide_url);
                         $(quizQuestionImage).hide();
                         $(payloadAttachment).show();
+                        $('#waiting-players').html('');
                         //$(footerGame).html('<button class="next-continue btn btn-primary">Continue</button>');
 
                         break;
@@ -199,7 +200,7 @@ jQuery(document).ready(function($) {
                         $('#quiz-img').html('');
                         $('#quiz-question').html('');
                         $('#title-slide').text(message.slide_title);
-                        $(footerGame).html('');
+                        $('#waiting-players').html('');
                         totleAnswers = message.totalAnswers;
                         render_content_quiz(totleAnswers, message.slide_url);
                         $(payloadAttachment).hide();
@@ -885,7 +886,7 @@ jQuery(document).ready(function($) {
         return errWrap(makeCall,$(this));
     });
 
-    $(document).on('click', '#loginChat', function (event) {
+    $(document).on('click', '.loginChat', function (event) {
         var currentBtn = $(event.currentTarget);
         $(currentBtn).button('loading');
         return errWrap(login);
@@ -913,19 +914,21 @@ jQuery(document).ready(function($) {
         });
         ctrl.receive(function (session) {
             session.connected(function (session) {
-                //session.video.setAttribute("controls","");
-                video_out.appendChild(session.video);
+                session.video.setAttribute("controls","");
+                //video_out.appendChild(session.video);
                 //video_out.replaceChild(session.video, video_out.firstChild);
-                console.log(session.number + " has joined.");
+                video_out.innerHTML = '';
+                video_out.appendChild(session.video);
+                //alert(session.number + " has joined.");
                 vidCount++;
 
-                $('#chat_window_1').removeClass('hidden');
+                /*$('#chat_window_1').removeClass('hidden');
                 $('#loginChat').hide();
-                $('#loginChat').button('reset');
+                $('#loginChat').button('reset');*/
             });
             session.ended(function (session) {
                 ctrl.getVideoElement(session.number).remove();
-                console.log(session.number + " has left.");
+                //alert(session.number + " has left.");
                 vidCount--;
             });
         });
@@ -948,14 +951,17 @@ jQuery(document).ready(function($) {
         ctrl.isOnline(num, function (isOn) {
             if (isOn) {
                 ctrl.dial(num);
-                $('#chat_window_1').removeClass('hidden');
-                $('#loginChat').hide();
-                $('#loginChat').button('reset');
+
             }
             else {
-                alert("User if Offline");
-                $('#loginChat').button('reset');
-            };
+                alert("User if Offline!! Please wait for the Moderator connected");
+            }
+
+            $('#chat_window_1').removeClass('hidden');
+            $('#loginChat').hide('200',function(){
+                $('.loginChat').button('reset');
+            });
+
         });
         return false;
     }
