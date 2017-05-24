@@ -768,7 +768,7 @@ label.correct_answer{
 }
 .chat-window{
     bottom:0;
-    right: 0;
+    /*right: 0;*/
     position:fixed;
 
 }
@@ -787,9 +787,9 @@ label.correct_answer{
     background: #e5e5e5;
     margin: 0;
     padding: 0 10px 10px;
-    max-height:300px;
+    max-height:900px;
     overflow-x:hidden;
-    height: 300px;
+    /*height: 300px;*/
 }
 .top-bar {
     background: #666;
@@ -814,22 +814,17 @@ label.correct_answer{
 }
 
 /*---------video---------*/
-#vid-box{
+/*#vid-box{
     display: inline-block;
     text-align:center;
     width:80%;
 
-}
-#vid-box video{
-    width:100%;
-}
-
-#vid-thumb video
-{
-    width: 80%;
+}*/
+#vid-box video, #vid-thumb video{
+    /*width: 90%;*/
     min-width: 100%;
-    min-height: 100%;
+    /*min-height: 100%;*/
 }
-.vidThumb{
+/*.vidThumb{
     padding-top: 5px;
-}
+}*/
