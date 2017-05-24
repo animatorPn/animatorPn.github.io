@@ -95,10 +95,15 @@ jQuery(document).ready(function($) {
             status: function (statusEvent) {
                 if (statusEvent.category === "PNConnectedCategory") {
 
-                    $('#chat_window_1').removeClass('hidden');
-                    errWrap(login);
+                    //$('#chat_window_1').removeClass('hidden');
+                    //errWrap(login);
                     $('#gamePin').text(channel);
                     $('#showPinGame').find('span').text(channel);
+
+                    $(footerGame).append('<div class="col-xs-4 text-right">' +
+                        '<button id="loginChat" style="margin-top: 10px" class="btn btn-primary pull-right" ' +
+                        'data-loading-text="<i class=\'fa fa-circle-o-notch fa-spin\'></i> Processing..">' +
+                        '<i class="fa fa-video-camera"></i></button></div>');
 
                     /*listTeamsColor.push({
                         teamColor : teamColor,
@@ -880,14 +885,20 @@ jQuery(document).ready(function($) {
         return errWrap(makeCall,$(this));
     });
 
+    $(document).on('click', '#loginChat', function (event) {
+        var currentBtn = $(event.currentTarget);
+        $(currentBtn).button('loading');
+        return errWrap(login);
+    });
+
 
     function login(form) {
         //var gamePin = Math.floor(Math.random() * 99 + 1);
         var loginUser = "animator-" + channel;
         var phone = window.phone = PHONE({
             number: loginUser, //form.username.value || "moderator", // listen on username line else Anonymous
-            publish_key: 'pub-c-561a7378-fa06-4c50-a331-5c0056d0163c', // Your Pub Key
-            subscribe_key: 'sub-c-17b7db8a-3915-11e4-9868-02ee2ddab7fe', // Your Sub Key
+            publish_key: 'pub-c-8e45f540-691c-4e55-9f07-f2278795ec3d', // Your Pub Key
+            subscribe_key: 'sub-c-b5732f80-4ccf-11e6-8b3b-02ee2ddab7fe', // Your Sub Key
             ssl : true
         });
         var ctrl = window.ctrl = CONTROLLER(phone);
@@ -895,14 +906,22 @@ jQuery(document).ready(function($) {
             /*form.username.style.background="#55ff5b";
              form.login_submit.hidden="true"; */
             ctrl.addLocalStream(vid_thumb);
+
+            errWrap(makeCall);
+
             console.log("Logged in as " + loginUser);
         });
         ctrl.receive(function (session) {
             session.connected(function (session) {
+                //session.video.setAttribute("controls","");
                 video_out.appendChild(session.video);
-                session.video.setAttribute("controls","controls");
+                //video_out.replaceChild(session.video, video_out.firstChild);
                 console.log(session.number + " has joined.");
                 vidCount++;
+
+                $('#chat_window_1').removeClass('hidden');
+                $('#loginChat').hide();
+                $('#loginChat').button('reset');
             });
             session.ended(function (session) {
                 ctrl.getVideoElement(session.number).remove();
@@ -924,10 +943,19 @@ jQuery(document).ready(function($) {
     function makeCall() {
         if (!window.phone) alert("Login First!");
         var num = 'moderator-'+channel;
+         console.log(num);
         if (phone.number() == num) return false; // No calling yourself!
         ctrl.isOnline(num, function (isOn) {
-            if (isOn) ctrl.dial(num);
-            else alert("User if Offline");
+            if (isOn) {
+                ctrl.dial(num);
+                $('#chat_window_1').removeClass('hidden');
+                $('#loginChat').hide();
+                $('#loginChat').button('reset');
+            }
+            else {
+                alert("User if Offline");
+                $('#loginChat').button('reset');
+            };
         });
         return false;
     }
