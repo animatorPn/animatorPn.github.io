@@ -78,10 +78,12 @@ var CONTROLLER = window.CONTROLLER = function(phone){
         video.play();
 	    video.setAttribute( 'autoplay', 'autoplay' );
 	    video.setAttribute( 'data-number', phone.number() );
+	    //video.setAttribute( 'controls','');
 	    vid.style.cssText ="-moz-transform: scale(-1, 1); \
 						 	-webkit-transform: scale(-1, 1); -o-transform: scale(-1, 1); \
 							transform: scale(-1, 1); filter: FlipH;";
-		vid.appendChild(video);
+		//vid.appendChild(video);
+		vid.replaceChild(video, vid.firstChild);
     };
     
     function stream_subscribe(name){
