@@ -821,7 +821,7 @@ label.correct_answer{
 
 }*/
 #vid-box video, #vid-thumb video{
-    /*width: 90%;*/
+    width: 100%;
     min-width: 100%;
     /*min-height: 100%;*/
 }
