@@ -231,7 +231,7 @@
 
 
 
-                <div>
+                <div class="col-xs-8 text-left">
                     <span class='fa fa-exclamation-circle footer-icon'></span>
                     <span class="footer-text">Waiting for players...</span>
                 </div>
@@ -330,7 +330,7 @@
 
 
 <!-- -------------------------------------------------chat video------------------------------------------------- -->
-<div class="row chat-window col-xs-6 col-md-6 hidden" id="chat_window_1">
+<div class="row chat-window col-xs-12 col-md-12 hidden" id="chat_window_1">
     <div class="col-xs-12 col-md-12">
         <div class="panel panel-default">
             <div class="panel-heading top-bar">
@@ -347,8 +347,8 @@
             </div>
             <div class="panel-body msg_container_base" style="display: none">
                 <div class="row msg_container base_sent">
-                    <div class="col-md-8 col-xs-8">
-                        <div class="messages msg_sent text-center">
+                    <div class="col-md-6 col-xs-6">
+                        <!-- <div class="messages msg_sent text-center"> -->
 
                             <!--<form name="callForm" id="call-video" action="#">
                                 &lt;!&ndash;<input type="text" name="number" id="call" placeholder="Enter User To Call!"/>&ndash;&gt;
@@ -356,16 +356,20 @@
                                 <button id="btn-call-video" class="btn btn-primary btn-lg disabled" type="submit" value="Call">Make call</button>
                             </form>-->
 
-                            <div id="vid-box"></div>
+                            <div id="vid-box">
+                                <span class="hidden"></span>
+                            </div>
 
-                        </div>
+                        <!-- </div> -->
 
 
 
                     </div>
-                    <div class="col-md-4 col-xs-4 avatar">
+                    <div class="col-md-6 col-xs-6 avatar">
 
-                        <div id="vid-thumb" class="vidThumb"></div>
+                        <div id="vid-thumb" class="vidThumb">
+                            <span class="hidden"></span>
+                        </div>
 
                     </div>
                 </div>
