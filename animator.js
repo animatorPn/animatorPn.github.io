@@ -58,7 +58,7 @@ jQuery(document).ready(function($) {
                             if(value.state.gameStarted === 'gameStarted'){
                                 gameStarted = true;
 
-                                console.log('gameStarted is '+gameStarted);
+                                //console.log('gameStarted is '+gameStarted);
                             }
 
                             var listTeamsColor = value.state.listTeamsColor;
@@ -149,7 +149,7 @@ jQuery(document).ready(function($) {
                     //console.log(gameStarted);
 
                     var newState;
-                    console.log('gameStarted 2 is '+gameStarted);
+                    //console.log('gameStarted 2 is '+gameStarted);
 
                     if(gameStarted){
                         newState = {
