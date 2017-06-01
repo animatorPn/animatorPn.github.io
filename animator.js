@@ -58,7 +58,7 @@ jQuery(document).ready(function($) {
                             if(value.state.gameStarted === 'gameStarted'){
                                 gameStarted = true;
 
-                                //console.log('gameStarted is '+gameStarted);
+                                console.log('gameStarted is '+gameStarted);
                             }
 
                             var listTeamsColor = value.state.listTeamsColor;
@@ -149,7 +149,7 @@ jQuery(document).ready(function($) {
                     //console.log(gameStarted);
 
                     var newState;
-                    //console.log('gameStarted 2 is '+gameStarted);
+                    console.log('gameStarted 2 is '+gameStarted);
 
                     if(gameStarted){
                         newState = {
@@ -513,6 +513,12 @@ jQuery(document).ready(function($) {
                         }
 
                         if(mode == 'B') {
+
+                            $.each(playersList,function(index,value){
+                                var color = value.color;
+                                $('#list-team-players-'+color).html('');
+                            });
+
                             playersList = playersList.filter(function(el) {
                                 return el.nickname !== presenceEvent.uuid;
                             });
@@ -529,6 +535,11 @@ jQuery(document).ready(function($) {
 
                             var playerNickname = presenceEvent.uuid;
                             var colorPlayer = presenceEvent.state.teamColor;
+
+                            $.each(playersList,function(index,value){
+                                var color = value.color;
+                                $('#list-team-players-'+color).html('');
+                            });
 
                             playersList.push({
                                 color: colorPlayer,
@@ -737,11 +748,6 @@ jQuery(document).ready(function($) {
     }
 
     function updateListPlayerModeB(arr){
-
-        $.each(arr,function(index,value){
-            var color = value.color;
-            $('#list-team-players-'+color).html('');
-        });
 
         $.each(arr,function(index,value){
             var color = value.color;
@@ -957,7 +963,6 @@ jQuery(document).ready(function($) {
 
         return leaderboard.slice(0, 10);
     }
-
 
 
 });
