@@ -178,7 +178,7 @@ var CONTROLLER = window.CONTROLLER = function(phone){
 		pubnub.here_now({
 			channel : number,
 			callback : function(m){
-				console.log(m);  // TODO Comment out
+				//console.log(m);  // TODO Comment out
 				cb(m.occupancy != 0);
 			}
 		});
