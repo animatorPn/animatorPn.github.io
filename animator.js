@@ -1,7 +1,8 @@
 jQuery(document).ready(function($) {
 
+
     var modal_submit_color_name_team = '#modal_submit_color_name_team';
-    var channel,pubnub,mode,teamColor,nbrPlayers = 0,allotedTime,totleAnswers,leaderboardPlayers, leaderboardTeams = [];
+    var pubnub,mode,teamColor,nbrPlayers = 0,allotedTime,totleAnswers,leaderboardPlayers = [], leaderboardTeams = [];
     var playersList = [];
     var addToplayerList = true;
     //var listTeamsColor = [];
@@ -18,14 +19,15 @@ jQuery(document).ready(function($) {
     var correctAnswer;
     var totalCorrect = 0,totalIncorrect = 0 ,totalNotAnswered = 0, notAnswered;
     var totalStars = 0,totalLikes = 0,totalDislikes = 0,totalSmiles = 0,totalMehs = 0,totalFrowns = 0,nbrAnswersPlayers = 0;
+    var gameStarted = false;
 
 
     $('#frm_joint_animator').submit(function(){
         $('#btn_joint_animator').button('loading');
         channel = $('#game-pin').val();
         pubnub = new PubNub({
-            subscribeKey: "sub-c-b5732f80-4ccf-11e6-8b3b-02ee2ddab7fe",
-            publishKey: "pub-c-8e45f540-691c-4e55-9f07-f2278795ec3d",
+            subscribeKey: subscribeKey,
+            publishKey: publishKey,
             ssl: true,
             //uuid:'animator',
             presenceTimeout: 120,
@@ -39,7 +41,8 @@ jQuery(document).ready(function($) {
                 alert('Session not found...!');
                 location.reload();
             }else{
-                //console.log(response);
+                console.log(response);
+                var playerExist = 0;
                 $.each(response,function(index,value){
                     if(value.uuid === 'moderator'){
 
@@ -51,6 +54,13 @@ jQuery(document).ready(function($) {
                         }else if (value.state.modeType === 'B'){
                             mode = "B";
                             //result = response;
+
+                            if(value.state.gameStarted === 'gameStarted'){
+                                gameStarted = true;
+
+                                console.log('gameStarted is '+gameStarted);
+                            }
+
                             var listTeamsColor = value.state.listTeamsColor;
                             $.each(listTeamsColor, function (index, value) {
                                 var teamColorModerator = value.teamColor;
@@ -69,6 +79,32 @@ jQuery(document).ready(function($) {
                             });
                         }
                     }
+
+
+
+
+                    /*if(value.uuid != 'moderator' && value.uuid != 'animator'){
+                        playerExist++
+                        nbrPlayers = playerExist;
+
+                        if(!gameStarted){
+                            var nbrPlayersTag = '#nbr-players'; 
+                            updateNbrPlayers(nbrPlayersTag,nbrPlayers);
+
+                            var playerNickname = value.uuid;
+                            var colorPlayer = value.state.teamColor;
+
+                            playersList.push({
+                                color: colorPlayer,
+                                nickname: playerNickname
+                            });
+                            $('#content-'+colorPlayer).show();
+                            updateListPlayerModeB(playersList);
+
+                        }
+                    }*/
+
+
                 });
             }
 
@@ -101,7 +137,7 @@ jQuery(document).ready(function($) {
                     $('#showPinGame').find('span').text(channel);
 
                     $(footerGame).append('<div class="col-xs-4 text-right">' +
-                        '<button id="loginChat" class=" loginChat btn btn-primary pull-right" ' +
+                        '<button id="loginChat" class=" btn btn-primary pull-right" ' +
                         'data-loading-text="<i class=\'fa fa-circle-o-notch fa-spin\'></i> Processing..">' +
                         '<i class="fa fa-video-camera"></i></button></div>');
 
@@ -109,45 +145,106 @@ jQuery(document).ready(function($) {
                         teamColor : teamColor,
                         nameColor : nameColor
                     });*/
-                    var newState = {
-                        response  : 'changeState',
-                        teamNameAnimator  : teamName,
-                        teamColorAnimator : teamColor,
-                        nameColorAnimator : nameColor
-                    };
+
+                    //console.log(gameStarted);
+
+                    var newState;
+                    console.log('gameStarted 2 is '+gameStarted);
+
+                    if(gameStarted){
+                        newState = {
+                            gameStarted  : 'gameStarted',
+                            teamNameAnimator  : teamName,
+                            teamColorAnimator : teamColor,
+                            nameColorAnimator : nameColor
+                        };
+                    }else{
+                        newState = {
+                            //response  : 'changeState',
+                            teamNameAnimator  : teamName,
+                            teamColorAnimator : teamColor,
+                            nameColorAnimator : nameColor
+                        };
+                    }
 
 
-
-                    pubnub.publish(
+                    pubnub.setState(
                         {
-                            message: newState,
-                            channel: channel,
-                            sendByPost: false // true to send via post
+                            state: newState,
+                            channels: [channel]
                         },
                         function (status, response) {
-                            if (status.error) {
-                                // handle error
-                                console.log(status);
-                                alert('error verify connection..!');
-                            }else{
-                                //console.log('ok'+status);
-                                //stopCount();
+                            if(!status.error){
+
                                 $('#frm_submit_color_name_team').hide();
                                 $('#dv-form').hide();
                                 $(headerGame).removeClass('header-game').addClass('header-game-team');
                                 $(headerGame).css('background-color', '#'+teamColor);
                                 $('#header_1').append('<h2>and color <span id="teamColor">'+nameColor+'</span></h2>');
-                                var template = addTeamClassrom(teamColor,teamName);
-                                $('#list_players_teams').append(template);
-
-                                $('#dv_quiz_players_team').show();
                                 leaderboardTeams = classmentTeam(leaderboardTeams,teamColor,nameColor,teamName,0);
 
-                                //console.log(leaderboardTeams);
+                                if(!gameStarted){
+                                    var template = addTeamClassrom(teamColor,teamName);
+                                    $('#list_players_teams').append(template);
+                                }else{
+                                    $('#waiting_players_content').html('<h1 style="text-align: center">You\'re in!</h1>');
+                                    $('#waiting-players').html('');
+                                }
+
+                                $('#dv_quiz_players_team').show();
+
+
+
+                                isOnline(channel,function(response){
+                                    var playerExist = 0;
+                                    $.each(response,function(index,value){
+                                        if(value.uuid != 'moderator' && value.uuid != 'animator'){
+                                            playerExist++
+                                            nbrPlayers = playerExist;
+
+                                            if(!gameStarted){
+                                                var nbrPlayersTag = '#nbr-players'; 
+                                                updateNbrPlayers(nbrPlayersTag,nbrPlayers);
+
+                                                var playerNickname = value.uuid;
+                                                var colorPlayer = value.state.teamColor;
+
+                                                playersList.push({
+                                                    color: colorPlayer,
+                                                    nickname: playerNickname
+                                                });
+                                                $('#content-'+colorPlayer).show();
+                                                updateListPlayerModeB(playersList);
+
+                                            }
+                                        }
+                                    });    
+                                });
+                                
                             }
                         }
                     );
 
+
+                    /*$(window).bind('beforeunload', function(){
+                        return 'Are you sure you want to leave?';
+                    });
+
+                    $(window).on('unload',function(){
+                        pubnub.unsubscribe({
+                            channels: [channel]
+                        });
+                    });*/
+
+
+                    window.onbeforeunload = function(event) {
+                        event.returnValue = "Are you sure you want to exit?";
+                    };
+                    window.onunload = function(){
+                        pubnub.unsubscribe({
+                            channels: [channel]
+                        });
+                    };
 
 
 
@@ -161,6 +258,12 @@ jQuery(document).ready(function($) {
                 switch (message.response){
 
                     case 'send_attachment':
+
+                        if (playersList.length > 0) {
+                            addToplayerList = false;
+                            playersList = [];
+                        }
+
                         $('#counter-slide').text(''+pad(message.slideCounter));
                         $('#total-slides').text(''+pad(message.childrenLength));
                         nbrAnswersPlayers = 0;
@@ -240,6 +343,8 @@ jQuery(document).ready(function($) {
                             totalCorrect++;
                             notAnswered--;
                             totalNotAnswered--;
+
+                            //console.log('totalCorrect is :'+totalCorrect);
 
                             /*playersNotAnswered = nbrPlayers - totalCorrect;
                              notAnswered =- playersNotAnswered;*/
@@ -348,19 +453,44 @@ jQuery(document).ready(function($) {
             presence: function (presenceEvent) {
                 //console.log(presenceEvent);
 
+                /*if(presenceEvent.uuid === 'animator' && presenceEvent.occupancy > 2){
+                    var nbrPlayersTag = '#nbr-players';
+                    var playerExist = presenceEvent.occupancy - 2;
+                    nbrPlayers = playerExist;
+
+                    updateNbrPlayers(nbrPlayersTag,nbrPlayers);
+                }*/
+
                 if(presenceEvent.uuid === 'moderator'){
-                    if(presenceEvent.action === 'leave'){
-                        location.reload();
+                    if(presenceEvent.action === 'leave' || presenceEvent.action === 'timeout'){
+                        //location.reload();
+
+                        $('body').html('<h1>Game Over</h1>')
                     }
-                    if(presenceEvent.action === 'timeout'){
-                        location.reload();
+                }
+
+                if(presenceEvent.uuid !== 'animator' && presenceEvent.uuid !== 'moderator' && !addToplayerList){
+                    if(presenceEvent.action === 'join'){
+                        if(mode == 'A') {
+                            nbrPlayers++;
+                        }
+                    }
+                    if(presenceEvent.action === 'leave'  || presenceEvent.action === 'timeout'){
+                        nbrPlayers--;
+                    }
+
+
+                    if(presenceEvent.action === 'state-change'){
+                        if(mode == 'B') {
+                            nbrPlayers++;
+                        }
                     }
                 }
 
 
                 if(presenceEvent.uuid !== 'animator' && presenceEvent.uuid !== 'moderator' && addToplayerList){
                     var nbrPlayersTag = '#nbr-players';
-                    nbrPlayers = parseInt($(nbrPlayersTag).attr('data-id'));
+                    //nbrPlayers = parseInt($(nbrPlayersTag).attr('data-id'));
 
 
                     if(presenceEvent.action === 'join'){
@@ -374,7 +504,7 @@ jQuery(document).ready(function($) {
                         }
                     }
 
-                    if(presenceEvent.action === 'leave'){
+                    if(presenceEvent.action === 'leave' || presenceEvent.action === 'timeout'){
                         nbrPlayers--;
                         updateNbrPlayers(nbrPlayersTag, nbrPlayers);
                         if(mode == 'A') {
@@ -391,23 +521,6 @@ jQuery(document).ready(function($) {
 
                     }
 
-
-                    if(presenceEvent.action === 'timeout'){
-                        nbrPlayers--;
-                        updateNbrPlayers(nbrPlayersTag, nbrPlayers);
-                        if(mode == 'A') {
-                            playersList.splice($.inArray(presenceEvent.uuid, playersList), 1);
-                            updateListPlayerModeA(playersList);
-                        }
-
-                        if(mode == 'B') {
-                            playersList = playersList.filter(function(el) {
-                                return el.nickname !== presenceEvent.uuid;
-                            });
-                            updateListPlayerModeB(playersList);
-                        }
-
-                    }
 
                     if(presenceEvent.action === 'state-change'){
                         if(mode == 'B') {
@@ -428,9 +541,9 @@ jQuery(document).ready(function($) {
                         }
                     }
 
-                    //console.log(playersList);
-
                 }
+
+                //console.log('nbrPlayers = '+nbrPlayers);
             }
         });
 
@@ -461,7 +574,7 @@ jQuery(document).ready(function($) {
 
     function changeViewToQuiz(){
         //$(startQuiz).button('reset');
-        $('#waiting_players').hide();
+        $('#waiting_players_content').hide();
         /*$("#footer-game div:first-child").hide();
          $("#footer-game div:last-child").show();*/
     }
@@ -844,163 +957,6 @@ jQuery(document).ready(function($) {
 
         return leaderboard.slice(0, 10);
     }
-
-
-
-    /*-----------------------------------------videoChat------------------------------------------------------*/
-    var video_out = document.getElementById("vid-box");
-    var vid_thumb = document.getElementById("vid-thumb");
-    var vidCount = 0;
-
-
-
-
-
-    $(document).on('click', '.panel-heading span.icon_minim', function (e) {
-        var $this = $(this);
-
-        if (!$this.hasClass('panel-collapsed')) {
-            $this.parents('.panel').find('.panel-body').slideDown();
-            $this.addClass('panel-collapsed');
-            $this.removeClass('fa-plus').addClass('fa-minus');
-        } else {
-
-            $this.parents('.panel').find('.panel-body').slideUp();
-            $this.removeClass('panel-collapsed');
-            $this.removeClass('fa-minus').addClass('fa-plus');
-        }
-    });
-
-
-    $('#mute-video').click(function(){
-        mute();
-    });
-    $('#pause-video').click(function(){
-        pause();
-    });
-    $('#end-video').click(function(){
-        end();
-    });
-
-    $('#call-video').submit(function(){
-        return errWrap(makeCall,$(this));
-    });
-
-    $(document).on('click', '.loginChat', function (event) {
-        var currentBtn = $(event.currentTarget);
-        $(currentBtn).button('loading');
-        return errWrap(login);
-    });
-
-
-    function login(form) {
-        //var gamePin = Math.floor(Math.random() * 99 + 1);
-        var loginUser = "animator-" + channel;
-        var phone = window.phone = PHONE({
-            number: loginUser, //form.username.value || "moderator", // listen on username line else Anonymous
-            publish_key: 'pub-c-8e45f540-691c-4e55-9f07-f2278795ec3d', // Your Pub Key
-            subscribe_key: 'sub-c-b5732f80-4ccf-11e6-8b3b-02ee2ddab7fe', // Your Sub Key
-            ssl : true
-        });
-        var ctrl = window.ctrl = CONTROLLER(phone);
-        ctrl.ready(function () {
-            /*form.username.style.background="#55ff5b";
-             form.login_submit.hidden="true"; */
-            ctrl.addLocalStream(vid_thumb);
-
-            errWrap(makeCall);
-
-            console.log("Logged in as " + loginUser);
-        });
-        ctrl.receive(function (session) {
-            session.connected(function (session) {
-                session.video.setAttribute("controls","");
-                //video_out.appendChild(session.video);
-                //video_out.replaceChild(session.video, video_out.firstChild);
-                video_out.innerHTML = '';
-                video_out.appendChild(session.video);
-                //alert(session.number + " has joined.");
-                vidCount++;
-
-                /*$('#chat_window_1').removeClass('hidden');
-                $('#loginChat').hide();
-                $('#loginChat').button('reset');*/
-            });
-            session.ended(function (session) {
-                ctrl.getVideoElement(session.number).remove();
-                //alert(session.number + " has left.");
-                vidCount--;
-            });
-        });
-        ctrl.videoToggled(function (session, isEnabled) {
-            ctrl.getVideoElement(session.number).toggle(isEnabled);
-            console.log(session.number + ": video enabled - " + isEnabled);
-        });
-        ctrl.audioToggled(function (session, isEnabled) {
-            ctrl.getVideoElement(session.number).css("opacity", isEnabled ? 1 : 0.75);
-            console.log(session.number + ": audio enabled - " + isEnabled);
-        });
-        return false;
-    }
-
-    function makeCall() {
-        if (!window.phone) alert("Login First!");
-        var num = 'moderator-'+channel;
-         console.log(num);
-        if (phone.number() == num) return false; // No calling yourself!
-        ctrl.isOnline(num, function (isOn) {
-            if (isOn) {
-                ctrl.dial(num);
-
-            }
-            else {
-                alert("User if Offline!! Please wait for the Moderator connected");
-            }
-
-            $('#loginChat').hide('100',function(){
-
-                $('#chat_window_1').removeClass('hidden');
-                $('.loginChat').button('reset');
-                $('.panel-heading span.icon_minim').parents('.panel').find('.panel-body').slideDown();
-                $('.panel-heading span.icon_minim').addClass('panel-collapsed');
-                $('.panel-heading span.icon_minim').removeClass('fa-plus').addClass('fa-minus');
-
-            });
-
-        });
-        return false;
-    }
-
-    function mute() {
-        var audio = ctrl.toggleAudio();
-        if (!audio) $("#mute-video").html('<i class="fa fa-volume-up icon_video_action"></i>');
-        else $("#mute-video").html('<i class="fa fa-volume-off icon_video_action"></i>');
-    }
-
-    function end() {
-        ctrl.hangup();
-    }
-
-    function pause() {
-        var video = ctrl.toggleVideo();
-        if (!video) $('#pause-video').html('<i class="fa fa-play icon_video_action"></i>');
-        else $('#pause-video').html('<i class="fa fa-pause icon_video_action"></i>');
-    }
-
-    function getVideo(number) {
-        return $('*[data-number="' + number + '"]');
-    }
-
-
-    function errWrap(fxn, form) {
-        try {
-            return fxn(form);
-        } catch (err) {
-            alert("WebRTC is currently only supported by Chrome, Opera, and Firefox");
-            return false;
-        }
-    }
-
 
 
 
