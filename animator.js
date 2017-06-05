@@ -205,6 +205,11 @@ jQuery(document).ready(function($) {
                                             if(!gameStarted){
                                                 var nbrPlayersTag = '#nbr-players'; 
                                                 updateNbrPlayers(nbrPlayersTag,nbrPlayers);
+                                                
+                                                $.each(playersList,function(index,value){
+                                                    var color = value.color;
+                                                    $('#list-team-players-'+color).html('');
+                                                });
 
                                                 var playerNickname = value.uuid;
                                                 var colorPlayer = value.state.teamColor;
