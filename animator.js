@@ -30,8 +30,8 @@ jQuery(document).ready(function($) {
             publishKey: publishKey,
             ssl: true,
             //uuid:'animator',
-            presenceTimeout: 120,
-            heartbeatInterval: 30
+            /*presenceTimeout: 120,
+            heartbeatInterval: 30*/
         });
 
         isOnline(channel,function(response){
