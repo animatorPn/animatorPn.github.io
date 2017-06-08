@@ -2,7 +2,7 @@ jQuery(document).ready(function($) {
 
 
     var modal_submit_color_name_team = '#modal_submit_color_name_team';
-    var pubnub,mode,teamColor,nbrPlayers = 0,allotedTime,totleAnswers,leaderboardPlayers = [], leaderboardTeams = [];
+    var pubnub,mode,teamColor,nbrPlayers = 0,allotedTime,totleAnswers,leaderboardPlayers = []; //leaderboardTeams = [];
     var playersList = [];
     var addToplayerList = true;
     //var listTeamsColor = [];
@@ -41,7 +41,7 @@ jQuery(document).ready(function($) {
                 alert('Session not found...!');
                 location.reload();
             }else{
-                console.log(response);
+                //console.log(response);
                 var playerExist = 0;
                 $.each(response,function(index,value){
                     if(value.uuid === 'moderator'){
@@ -58,17 +58,17 @@ jQuery(document).ready(function($) {
                             if(value.state.gameStarted === 'gameStarted'){
                                 gameStarted = true;
 
-                                console.log('gameStarted is '+gameStarted);
+                                //console.log('gameStarted is '+gameStarted);
                             }
 
                             var listTeamsColor = value.state.listTeamsColor;
                             $.each(listTeamsColor, function (index, value) {
                                 var teamColorModerator = value.teamColor;
                                 var teamNameModerator = value.teamName;
-                                var nameColorModerator = value.nameColor;
+                                //var nameColorModerator = value.nameColor;
 
                                 $('#color-'+teamColorModerator).remove();
-                                leaderboardTeams = classmentTeam(leaderboardTeams,teamColorModerator,nameColorModerator,teamNameModerator,0);
+                                //leaderboardTeams = classmentTeam(leaderboardTeams,teamColorModerator,nameColorModerator,teamNameModerator,0);
                                 var template = addTeamClassrom(teamColorModerator,teamNameModerator);
                                 $('#list_players_teams').append(template);
                             });
@@ -149,7 +149,7 @@ jQuery(document).ready(function($) {
                     //console.log(gameStarted);
 
                     var newState;
-                    console.log('gameStarted 2 is '+gameStarted);
+                    //console.log('gameStarted 2 is '+gameStarted);
 
                     if(gameStarted){
                         newState = {
@@ -181,7 +181,7 @@ jQuery(document).ready(function($) {
                                 $(headerGame).removeClass('header-game').addClass('header-game-team');
                                 $(headerGame).css('background-color', '#'+teamColor);
                                 $('#header_1').append('<h2>and color <span id="teamColor">'+nameColor+'</span></h2>');
-                                leaderboardTeams = classmentTeam(leaderboardTeams,teamColor,nameColor,teamName,0);
+                                //leaderboardTeams = classmentTeam(leaderboardTeams,teamColor,nameColor,teamName,0);
 
                                 if(!gameStarted){
                                     var template = addTeamClassrom(teamColor,teamName);
@@ -367,11 +367,10 @@ jQuery(document).ready(function($) {
 
                         leaderboardPlayers = message.leaderboardPlayers;
 
-                        if(mode == 'B') {
+                        /*if(mode == 'B') {
                             var PtSlide = message.PtSlide || 0;
                             leaderboardTeams = classmentTeam(leaderboardTeams, message.teamColor, '', '', PtSlide);
-                            //console.log(leaderboardTeams);
-                        }
+                        }*/
                         break;
                     case 'sendFeedback':
                         //console.log(message);
@@ -419,7 +418,8 @@ jQuery(document).ready(function($) {
                         break;
 
                     case 'renderStatisticsTeams':
-                        var contentMOdalTeams = renderStatisticsListTeams(leaderboardTeams);
+                        //console.log(message.leaderboardTeams);
+                        var contentMOdalTeams = renderStatisticsListTeams(message.leaderboardTeams);
                         $('#content-statistics-players').html(contentMOdalTeams);
                         break;
 
@@ -926,7 +926,7 @@ jQuery(document).ready(function($) {
     }
 
 
-    function classmentTeam(leaderboard,teamColorp,nameColorp,teamNamep,scorep){
+    /*function classmentTeam(leaderboard,teamColorp,nameColorp,teamNamep,scorep){
 
         var found = false;
 
@@ -936,9 +936,9 @@ jQuery(document).ready(function($) {
                 var scoreOld = leaderboard[i].score;
                 var scoreFinal = Math.round(scoreOld+scorep);
 
-                /*console.log(scoreOld);
+                /!*console.log(scoreOld);
                  console.log(scorep);
-                 console.log(scoreFinal);*/
+                 console.log(scoreFinal);*!/
 
                 leaderboard[i].score = scoreFinal;
                 break;
@@ -965,7 +965,7 @@ jQuery(document).ready(function($) {
         //var leaderboardTeam = leaderboard.slice(0, 10);
 
         return leaderboard.slice(0, 10);
-    }
+    }*/
 
 
 });
