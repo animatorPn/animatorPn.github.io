@@ -2,7 +2,7 @@ jQuery(document).ready(function($) {
 
 
     var modal_submit_color_name_team = '#modal_submit_color_name_team';
-    var pubnub,mode,teamColor,nbrPlayers = 0,allotedTime,totleAnswers,leaderboardPlayers = []; //leaderboardTeams = [];
+    var pubnub,mode,teamColor,nbrPlayers = 0,allotedTime,quizAnswers,leaderboardPlayers = []; //leaderboardTeams = [];
     var playersList = [];
     var addToplayerList = true;
     //var listTeamsColor = [];
@@ -305,10 +305,11 @@ jQuery(document).ready(function($) {
 
                         $('#quiz-img').html('');
                         $('#quiz-question').html('');
-                        $('#title-slide').text(message.slide_title);
+                        $('#title-slide').text(message.quiz_question);
                         $('#waiting-players').html('');
-                        totleAnswers = message.totalAnswers;
-                        render_content_quiz(totleAnswers, message.slide_url);
+                        //totleAnswers = message.totalAnswers;
+                        quizAnswers = message.quiz_answers;
+                        render_content_quiz(quizAnswers, message.slide_url);
                         $(payloadAttachment).hide();
                         $(quizQuestionImage).show();
 
@@ -653,15 +654,23 @@ jQuery(document).ready(function($) {
         return (d < 10) ? '0' + d.toString() : d.toString();
     }
 
-    function render_content_quiz(totalQuestion,imgURL){
+    function render_content_quiz(quiz_answers,imgURL){
         $('#quiz-img').html('<img src="'+imgURL+'"/>');
         $('#quiz-question').html('');
+        
+        
+        $.each(quiz_answers, function(index,value){
+            var i = index+1;
+            $('#quiz-question').append('<label id="label-question-'+i+'" class="element-animation'+i+' btn btn-lg btn-bgcolor btn-block">' +
+                '<span class="btn-label"><i class="fa fa-chevron-right"></i></span> ' +
+                '<input type="radio" name="q_answer" value="'+i+'">'+i+': '+value+'</label>');
+        });
 
-        for(var i=1; i <= totalQuestion; i++){
+        /*for(var i=1; i <= totalQuestion; i++){
             $('#quiz-question').append('<label id="label-question-'+i+'" class="element-animation'+i+' btn btn-lg btn-bgcolor btn-block">' +
                 '<span class="btn-label"><i class="fa fa-chevron-right"></i></span> ' +
                 '<input type="radio" name="q_answer" value="'+i+'">Answer '+i+'</label>');
-        }
+        }*/
     }
 
     var timerId;
